@@ -5,7 +5,7 @@ using System.Net;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 
-namespace EventStore.Configuration
+namespace EventStore.Examples.Helpers.Configuration
 { 
     public static class EventStoreConnectionFactory
     {

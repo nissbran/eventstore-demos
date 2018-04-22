@@ -1,4 +1,4 @@
-﻿namespace EventStore.Configuration
+﻿namespace EventStore.Examples.Helpers.Configuration
 {
     public interface IEventStoreConfiguration
     {

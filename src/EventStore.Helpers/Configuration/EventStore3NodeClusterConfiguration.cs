@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EventStore.Configuration
+namespace EventStore.Examples.Helpers.Configuration
 {
     public class EventStore3NodeClusterConfiguration : IEventStoreConfiguration
     {
