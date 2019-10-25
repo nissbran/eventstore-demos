@@ -9,48 +9,26 @@ namespace EventStore.Examples.Helpers.Configuration
 { 
     public static class EventStoreConnectionFactory
     {
-        public static IEventStoreConnection Create(IEventStoreConfiguration configuration, ILogger customerLogger, string username, string password)
+        public static IEventStoreConnection Create(
+            string connectionString,
+            string username,
+            string password,
+            ILogger customLogger = null,
+            string connectionName = null)
         {
             var connectionSettings = ConnectionSettings.Create()
                 .FailOnNoServerResponse()
-                .UseCustomLogger(customerLogger)
-                //.EnableVerboseLogging()
                 .KeepReconnecting()
                 .KeepRetrying()
                 .SetMaxDiscoverAttempts(int.MaxValue)
+                .SetHeartbeatTimeout(TimeSpan.FromSeconds(5))
+                .SetGossipTimeout(TimeSpan.FromSeconds(5))
                 .SetDefaultUserCredentials(new UserCredentials(username, password));
 
-            if (configuration.UseSingleNode)
-            {
-                return EventStoreConnection.Create(connectionSettings.Build(), new Uri(configuration.SingleNodeConnectionUri));
-            }
+            if (customLogger != null)
+                connectionSettings.UseCustomLogger(customLogger);
 
-            var gossipEndpoints = BuildIpEndPoints(configuration.ClusterConfiguration.ClusterNodes).ToArray();
-
-            connectionSettings.SetGossipSeedEndPoints(gossipEndpoints);
-
-            if (configuration.ClusterConfiguration.UseSsl)
-            {
-                // This host name does not need to exist. It's used only to enable server validation in terms of matching certificate and trust chain.
-                connectionSettings.UseSslConnection("your-domain.com", validateServer: true);
-            }
-
-            return EventStoreConnection.Create(connectionSettings.Build());
-        }
-
-        private static IEnumerable<IPEndPoint> BuildIpEndPoints(IEnumerable<IEventStoreClusterNode> clusterNodes)
-        {
-            var gossipHosts = new List<IPEndPoint>();
-
-            foreach (var clusterNode in clusterNodes)
-            {
-                if (clusterNode.HostNameSpecified)
-                    gossipHosts.Add(new IPEndPoint(Dns.GetHostEntryAsync(clusterNode.HostName).Result.AddressList[0], clusterNode.ExternalPort));
-                else
-                    gossipHosts.Add(new IPEndPoint(IPAddress.Parse(clusterNode.IpAddress), clusterNode.ExternalPort));
-            }
-
-            return gossipHosts;
+            return EventStoreConnection.Create(connectionString, connectionSettings, connectionName);
         }
     }
 }

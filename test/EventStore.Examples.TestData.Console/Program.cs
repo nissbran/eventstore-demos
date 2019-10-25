@@ -16,8 +16,8 @@
             Console.WriteLine("Adding account test data");
             
             var connection = EventStoreConnectionFactory.Create(
-                new EventStoreSingleNodeConfiguration(),
-                new ConsoleLogger(), "admin", "changeit");
+                "ConnectTo=tcp://localhost:1113",
+                "admin", "changeit", new ConsoleLogger());
 
             await connection.ConnectAsync();
             
