@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 
-namespace EventStore.Examples.Helpers.Configuration
+namespace EventStore.Examples.Infrastructure.Configuration
 { 
     public static class EventStoreConnectionFactory
     {

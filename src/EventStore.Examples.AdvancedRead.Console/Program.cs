@@ -1,15 +1,18 @@
-﻿namespace EventStore.Examples.AdvancedRead.Console
-{
-    using EventStore.ClientAPI;
-    using EventStore.ClientAPI.SystemData;
-    using EventStore.Examples.AdvancedRead.Console.Events;
-    using EventStore.Examples.Helpers.Serialization;
-    using System;
-    using System.Net;
-    using System.Text;
-    using System.Threading.Tasks;
+﻿using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
+using EventStore.Examples.AdvancedRead.Console.Events;
+using EventStore.Examples.Infrastructure.Serialization;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
-    class Program
+namespace EventStore.Examples.AdvancedRead.Console
+{
+    using System;
+    
+    internal static class Program
     {
         private const string Username = "admin";
         private const string Password = "changeit";
@@ -30,7 +33,14 @@
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine("For this example to work you need to turn on all system projections in EventStore.");
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(
+                    theme: AnsiConsoleTheme.Code,
+                    outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {NewLine}")
+                .CreateLogger();
+            
+            Log.Information("For this example to work you need to turn on all system projections in EventStore.");
 
             var connectionSettings = ConnectionSettings.Create().SetDefaultUserCredentials(new UserCredentials(Username, Password));
 
@@ -47,12 +57,12 @@
             await ReadAndCountAllAdvancedReadStream2Streams();
             await ReadTheNewestAdvancedReadStream2Stream();
 
-            Console.WriteLine($"ReadAllAdvancedReadStreamEvents, Number of events: {AllAdvancedReadStreamCounter}");
-            Console.WriteLine($"ReadAllResolvedAdvancedReadStreamEvents, Total value: {AllResolvedAdvancedReadStreamValue}");
-            Console.WriteLine($"ReadAllResolvedReadEvent2Events, Total value: {AllResolvedReadEvent2Value}");
-            Console.WriteLine($"ReadAndCountAllStreams, Number of streams: {NumberOfStreamsCounter}");
-            Console.WriteLine($"ReadAndCountAllAdvancedReadStream2Streams, Number of streams: {NumberOfAdvancedReadStream2Streams}");
-            Console.WriteLine($"Latest {StreamPrefix2} stream: {LatestAdvancedReadStream2Stream}");
+            Log.Information("ReadAllAdvancedReadStreamEvents, Number of events: {NumberOfEvents}", AllAdvancedReadStreamCounter);
+            Log.Information("ReadAllResolvedAdvancedReadStreamEvents, Total value: {NumberOfEvents}", AllResolvedAdvancedReadStreamValue);
+            Log.Information("ReadAllResolvedReadEvent2Events, Total value: {NumberOfEvents}", AllResolvedReadEvent2Value);
+            Log.Information("ReadAndCountAllStreams, Number of streams: {NumberOfEvents}", NumberOfStreamsCounter);
+            Log.Information("ReadAndCountAllAdvancedReadStream2Streams, Number of streams: {NumberOfEvents}", NumberOfAdvancedReadStream2Streams);
+            Log.Information("Latest {StreamPrefix2} stream: {LatestStream}", StreamPrefix2, LatestAdvancedReadStream2Stream);
 
             Console.ReadLine();
         }

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EventStore.Helpers\EventStore.Examples.Helpers.csproj" />
+    <ProjectReference Include="..\EventStore.Examples.Infrastructure\EventStore.Examples.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

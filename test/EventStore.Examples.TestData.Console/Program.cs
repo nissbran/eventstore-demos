@@ -1,4 +1,7 @@
-﻿namespace EventStore.Examples.TestData.Console
+﻿using EventStore.Examples.Infrastructure.Configuration;
+using EventStore.Examples.Infrastructure.Serialization;
+
+namespace EventStore.Examples.TestData.Console
 {
     using System;
     using System.Threading.Tasks;
@@ -6,8 +9,6 @@
     using ClientAPI;
     using ClientAPI.Common.Log;
     using Domain;
-    using EventStore.Examples.Helpers.Configuration;
-    using Helpers.Serialization;
 
     class Program
     {

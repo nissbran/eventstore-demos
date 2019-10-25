@@ -1,13 +1,15 @@
-﻿namespace EventStore.Examples
-{
-    using EventStore.ClientAPI;
-    using EventStore.ClientAPI.Exceptions;
-    using EventStore.ClientAPI.SystemData;
-    using System;
-    using System.Net;
-    using System.Threading.Tasks;
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using EventStore.ClientAPI;
+using EventStore.ClientAPI.Exceptions;
+using EventStore.ClientAPI.SystemData;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
-    class Program
+namespace EventStore.Examples.Append.Console
+{
+    internal static class Program
     {
         private const string Username = "admin";
         private const string Password = "changeit";
@@ -18,6 +20,11 @@
 
         public static async Task Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration()
+                .Enrich.FromLogContext()
+                .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+                .CreateLogger();
+            
             var connectionSettings = ConnectionSettings.Create().SetDefaultUserCredentials(new UserCredentials(Username, Password));
 
             _eventStoreConnection = EventStoreConnection.Create(connectionSettings, new IPEndPoint(IPAddress.Loopback, 1113));
@@ -28,39 +35,39 @@
             await RegularConditionalAppend();
             await AppendWithTransaction();
 
-            Console.ReadLine();
+            System.Console.ReadLine();
         }
 
         private static async Task RegularAppend()
         {
             try
             {
-                Console.WriteLine($"Appending to {Stream} using AppendToStreamAsync");
+                Log.Information("Appending to {Stream} using AppendToStreamAsync", Stream);
 
                 var result = await _eventStoreConnection.AppendToStreamAsync(Stream, ExpectedVersion.EmptyStream, CreateEvent());
 
-                Console.WriteLine($"Result ok!, NextExpectedVersion: {result.NextExpectedVersion}");
+                Log.Information("Result ok!, NextExpectedVersion: {NextExpectedVersion}", result.NextExpectedVersion);
             }
             catch (WrongExpectedVersionException exception)
             {
-                Console.WriteLine(exception);
+                System.Console.WriteLine(exception);
             }
         }
 
         private static async Task RegularConditionalAppend()
         {
-            Console.WriteLine($"Appending to {Stream} using ConditionalAppendToStreamAsync");
+            Log.Information("Appending to {Stream} using ConditionalAppendToStreamAsync", Stream);
 
             var conditionalResult = await _eventStoreConnection.ConditionalAppendToStreamAsync(Stream, 0, new[] { CreateEvent() });
 
-            Console.WriteLine($"Result: {conditionalResult.Status}, NextExpectedVersion: {conditionalResult.NextExpectedVersion}");
+            Log.Information("Result: {Status}, NextExpectedVersion: {NextExpectedVersion}", conditionalResult.Status, conditionalResult.NextExpectedVersion);
         }
 
         private static async Task AppendWithTransaction()
         {
             try
             {
-                Console.WriteLine($"Appending to {Stream} using Transaction");
+                Log.Information("Appending to {Stream} using Transaction", Stream);
 
                 using (var transaction = await _eventStoreConnection.StartTransactionAsync(Stream, 1))
                 {
@@ -69,12 +76,12 @@
 
                     var result = await transaction.CommitAsync();
 
-                    Console.WriteLine($"Result ok!, NextExpectedVersion: {result.NextExpectedVersion}");
+                    Log.Information("Result ok!, NextExpectedVersion: {NextExpectedVersion}", result.NextExpectedVersion);
                 }
             }
             catch (WrongExpectedVersionException exception)
             {
-                Console.WriteLine(exception);
+                Log.Error(exception, "Wrong expected version");
             }
         }
 

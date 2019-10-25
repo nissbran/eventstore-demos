@@ -6,6 +6,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\EventStore.Examples.Domain\EventStore.Examples.Domain.csproj" />
-    <ProjectReference Include="..\..\src\EventStore.Helpers\EventStore.Examples.Helpers.csproj" />
+    <ProjectReference Include="..\..\src\EventStore.Examples.Infrastructure\EventStore.Examples.Infrastructure.csproj" />
   </ItemGroup>
 </Project>
