@@ -1,0 +1,80 @@
+version: "3.5"
+
+services:
+
+  eventstore1:
+   image: eventstore/eventstore:20.10.0-bionic
+   env_file:
+     - common-variables.env
+   environment:
+     - EVENTSTORE_GOSSIP_SEED=172.16.0.12:2113,172.16.0.13:2113
+     - EVENTSTORE_NODE_PRIORITY=3
+     - EVENTSTORE_INT_IP=172.16.0.11
+     - EVENTSTORE_ADVERTISE_HOST_TO_CLIENT_AS=127.0.0.1
+     - EVENTSTORE_ADVERTISE_HTTP_PORT_TO_CLIENT_AS=2113
+     - EVENTSTORE_ADVERTISE_TCP_PORT_TO_CLIENT_AS=1113
+   ports:
+     - 1113:1113
+     - 2113:2113
+   volumes:
+  #    - "~/Data/eventstore3node/node1:/var/lib/eventstore"
+      - "./certificates/ca:/opt/eventstore/ca"
+      - "./certificates/server:/opt/eventstore/cert"
+   restart: always
+   networks:
+     clusternetwork:
+       ipv4_address: 172.16.0.11
+       
+  eventstore2:
+   image: eventstore/eventstore:20.10.0-bionic
+   env_file:
+     - common-variables.env
+   environment:
+     - EVENTSTORE_GOSSIP_SEED=172.16.0.12:2113,172.16.0.13:2113
+     - EVENTSTORE_NODE_PRIORITY=2
+     - EVENTSTORE_INT_IP=172.16.0.12
+     - EVENTSTORE_ADVERTISE_HOST_TO_CLIENT_AS=127.0.0.1
+     - EVENTSTORE_ADVERTISE_HTTP_PORT_TO_CLIENT_AS=2123
+     - EVENTSTORE_ADVERTISE_TCP_PORT_TO_CLIENT_AS=1123
+   ports:
+     - 1123:1113
+     - 2123:2113
+   volumes:
+  #    - "~/Data/eventstore3node/node2:/var/lib/eventstore"
+      - "./certificates/ca:/opt/eventstore/ca"
+      - "./certificates/server:/opt/eventstore/cert"
+   restart: always
+   networks:
+     clusternetwork:
+       ipv4_address: 172.16.0.12
+   
+  eventstore3:
+   image: eventstore/eventstore:20.10.0-bionic
+   env_file:
+     - common-variables.env
+   environment:
+     - EVENTSTORE_GOSSIP_SEED=172.16.0.11:2113,172.16.0.13:2113
+     - EVENTSTORE_NODE_PRIORITY=1
+     - EVENTSTORE_INT_IP=172.16.0.13
+     - EVENTSTORE_ADVERTISE_HOST_TO_CLIENT_AS=127.0.0.1
+     - EVENTSTORE_ADVERTISE_HTTP_PORT_TO_CLIENT_AS=2133
+     - EVENTSTORE_ADVERTISE_TCP_PORT_TO_CLIENT_AS=1133
+   ports:
+     - 1133:1113
+     - 2133:2113
+   volumes:
+  #    - "~/Data/eventstore3node/node3:/var/lib/eventstore"
+      - "./certificates/ca:/opt/eventstore/ca"
+      - "./certificates/server:/opt/eventstore/cert"
+   restart: always
+   networks:
+     clusternetwork:
+       ipv4_address: 172.16.0.13
+
+networks:
+  clusternetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.0.0/24
