@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Certificates
+**/certificates/ca
+**/certificates/server
+
 # Terraform
 .terraform
 terraform.tfstate
